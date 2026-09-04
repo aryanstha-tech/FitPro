@@ -52,7 +52,7 @@ export function Navbar() {
           <Link href="/cart" aria-label="Cart" className="hidden text-ink hover:text-accent sm:block">
             <ShoppingBag size={18} />
           </Link>
-          <Button size="sm" className="hidden sm:inline-flex">
+          <Button href="/login" size="sm" className="hidden sm:inline-flex">
             Join Now
           </Button>
           <button
@@ -89,7 +89,7 @@ export function Navbar() {
               <Link href="/cart" aria-label="Cart" className="text-ink hover:text-accent">
                 <ShoppingBag size={18} />
               </Link>
-              <Button size="sm" className="ml-auto">
+              <Button size="sm" href="/login" className="ml-auto">
                 Join Now
               </Button>
             </div>

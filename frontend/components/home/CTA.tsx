@@ -11,7 +11,7 @@ export function CTA() {
             Join today and get your first personal training session on us.
           </p>
         </div>
-        <Button size="lg">Join Now</Button>
+        <Button size="lg" href="/register" className="cursor-pointer">Join Now</Button>
       </Container>
     </section>
   );

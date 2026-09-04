@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U fitpro"]
+      test: [ "CMD-SHELL", "pg_isready -U fitpro" ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -56,14 +56,24 @@ services:
       - redis
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
       API_URL_INTERNAL: http://backend:8000/api/v1
+      # Required on Windows: Next.js can't detect file changes via inotify
+      # across the Windows→Linux boundary, so we use polling instead.
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
     depends_on:
       - backend
-        
+    volumes:
+      - ./frontend:/app          # mount source for live edits
+      - /app/node_modules        # keep Linux node_modules inside container
+      - /app/.next               # keep build cache inside container
+
 volumes:
   postgres_data:
