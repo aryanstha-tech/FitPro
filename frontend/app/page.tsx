@@ -6,8 +6,10 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        heading="Train with purpose."
-        subheading="Full-access memberships, expert coaching and a floor built for serious training — join a community that shows up."
+        heading="Achieve Your Fitness Dreams"
+        subheading="Through personalized coaching, cutting-edge techniques
+                   and support we will help you achieve the fitness goals you
+                   have always wanted."
         imageSrc="/hero-gym.png"
         imageAlt="Member training with dumbbells at FitPro gym"
       />

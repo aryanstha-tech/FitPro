@@ -23,8 +23,12 @@ export function Navbar() {
   return (
     <header className="absolute inset-x-0 top-0 z-40">
       <Container className="flex h-20 items-center justify-between">
-        <Link href="/" className="font-display text-2xl tracking-wide text-ink">
-          Fit<span className="text-accent">Pro</span>
+        <Link href="/" className="flex items-center">
+          <img
+            src="/fitpro-logo.png"
+            alt="FitPro"
+            className="h-10 w-auto"
+          />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
@@ -35,8 +39,10 @@ export function Navbar() {
                 key={link.label}
                 href={link.href}
                 className={clsx(
-                  "text-sm transition-colors",
-                  active ? "text-accent" : "text-ink hover:text-accent"
+                  "relative text-sm transition-colors",
+                  active
+                    ? "text-accent after:absolute after:-bottom-2 after:left-0 after:h-[2px] after:w-full after:bg-accent"
+                    : "text-ink hover:text-accent"
                 )}
               >
                 {link.label}

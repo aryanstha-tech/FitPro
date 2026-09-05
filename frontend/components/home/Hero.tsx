@@ -30,7 +30,7 @@ export function Hero({
       <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/10" />
 
       {/* Hero Content */}
-      <Container className="relative z-10 flex min-h-[720px] items-center">
+      <Container className="relative z-10 flex min-h-[750px] items-center">
         <div className="max-w-xl">
           {/* Heading */}
           <h1 className="text-4xl font-bold leading-tight text-white sm:text-5xl md:text-6xl">
@@ -38,7 +38,7 @@ export function Hero({
           </h1>
 
           {/* Description */}
-          <p className="mt-5 max-w-lg text-sm leading-6 text-white/60 sm:text-base">
+          <p className="mt-5 max-w-lg text-sm leading-6 text-white/50">
             {subheading}
           </p>
 
@@ -56,7 +56,7 @@ export function Hero({
               size="lg"
               variant="secondary"
               href="/about"
-              className="cursor-pointer"
+              className="cursor-pointer !border-accent !text-accent hover:!bg-accent hover:!text-base"
             >
               Explore Gym
             </Button>
