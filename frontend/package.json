@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@iconify/react": "^4.1.1",
+    "@iconify/tailwind": "^1.2.0",
     "@swc/helpers": "^0.5.23",
     "clsx": "^2.1.1",
     "lucide-react": "^0.383.0",

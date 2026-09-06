@@ -1,9 +1,16 @@
 import Image from "next/image";
 import { Container } from "../layout/Container";
 import { Button } from "../ui/Button";
+import {
+  UsersRound,
+  Dumbbell,
+  CalendarCheck,
+  Target,
+} from "lucide-react";
+import { Icon } from "@iconify/react";
 
 interface HeroProps {
-  heading: string;
+  heading: React.ReactNode;
   subheading: string;
   imageSrc: string;
   imageAlt: string;
@@ -84,13 +91,28 @@ export function Hero({
         </div>
       </Container>
 
-      {/* Feature Cards */}
-      <div className="absolute bottom-8 left-1/2 z-20 grid w-[90%] max-w-5xl -translate-x-1/2 grid-cols-2 gap-3 md:grid-cols-4">
-        <FeatureCard title="Expert Trainers" icon="♧" />
-        <FeatureCard title="Modern Equipment" icon="✚" />
-        <FeatureCard title="Flexible Membership" icon="▣" />
-        <FeatureCard title="Personalized Training" icon="◉" />
-      </div>
+{/* Feature Cards */}
+<div className="absolute bottom-8 left-1/2 z-20 grid w-[90%] max-w-5xl -translate-x-1/2 grid-cols-2 gap-4 md:grid-cols-4">
+  <FeatureCard
+    title="Expert Trainers"
+    icon={<UsersRound size={17} />}
+  />
+
+  <FeatureCard
+    title="Modern Equipment"
+    icon={<Dumbbell size={17} />}
+  />
+
+  <FeatureCard
+    title="Flexible Membership"
+    icon={<CalendarCheck size={17} />}
+  />
+
+  <FeatureCard
+    title="Personalized Training"
+    icon={<Target size={17} />}
+  />
+</div>
     </section>
   );
 }
@@ -100,15 +122,15 @@ function FeatureCard({
   icon,
 }: {
   title: string;
-  icon: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl bg-white/90 p-4 shadow-lg backdrop-blur-sm">
-      <div className="mb-5 flex h-7 w-7 items-center justify-center rounded-md bg-black text-sm text-lime-400">
+    <div className="rounded-xl bg-white p-5 shadow-lg">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black text-accent">
         {icon}
       </div>
 
-      <p className="text-sm font-medium text-black">
+      <p className="mt-6 text-sm font-semibold text-black">
         {title}
       </p>
     </div>

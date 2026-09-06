@@ -6,7 +6,12 @@ export default function HomePage() {
   return (
     <>
       <Hero
-        heading="Achieve Your Fitness Dreams"
+        heading={
+          <>  
+            Achieve Your <br /> 
+      <span className="text-accent">Fitness Dreams</span>
+          </>
+        }
         subheading="Through personalized coaching, cutting-edge techniques
                    and support we will help you achieve the fitness goals you
                    have always wanted."

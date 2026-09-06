@@ -3,8 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Search, ShoppingBag, Menu, X } from "lucide-react";
+import { Search, Menu, X } from "lucide-react";
 import clsx from "clsx";
+import { Icon } from "@iconify/react";
 import { Container } from "./Container";
 import { Button } from "../ui/Button";
 
@@ -55,11 +56,15 @@ export function Navbar() {
           <button aria-label="Search" className="hidden text-ink hover:text-accent sm:block">
             <Search size={18} />
           </button>
-          <Link href="/cart" aria-label="Cart" className="hidden text-ink hover:text-accent sm:block">
-            <ShoppingBag size={18} />
+          <Link
+            href="/cart"
+            aria-label="Cart"
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-base transition-transform hover:scale-105"
+          >
+            <Icon icon="el:shopping-cart" width="18" height="18" />
           </Link>
           <Button href="/login" size="sm" className="hidden sm:inline-flex">
-            Join Now
+            Register Now
           </Button>
           <button
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -92,11 +97,15 @@ export function Navbar() {
               <button aria-label="Search" className="text-ink hover:text-accent">
                 <Search size={18} />
               </button>
-              <Link href="/cart" aria-label="Cart" className="text-ink hover:text-accent">
-                <ShoppingBag size={18} />
+              <Link
+                href="/cart"
+                aria-label="Cart"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-base transition-transform hover:scale-105"
+              >
+                <Icon icon="el:shopping-cart" width="18" height="18" />
               </Link>
               <Button size="sm" href="/login" className="ml-auto">
-                Join Now
+                Register Now
               </Button>
             </div>
           </Container>
