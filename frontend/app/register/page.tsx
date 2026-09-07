@@ -263,13 +263,13 @@ export default function RegisterPage() {
     n: string; ph: string; addr: string; em: string; pw: string; cpw: string; g: Gender | "";
   }>) {
     if (!submitted) return;
-    const n   = partial.n   ?? name;
-    const ph  = partial.ph  ?? phone;
-    const addr= partial.addr?? address;
-    const em  = partial.em  ?? email;
-    const pw  = partial.pw  ?? password;
+    const n = partial.n ?? name;
+    const ph = partial.ph ?? phone;
+    const addr = partial.addr ?? address;
+    const em = partial.em ?? email;
+    const pw = partial.pw ?? password;
     const cpw = partial.cpw ?? confirmPassword;
-    const g   = partial.g   ?? gender;
+    const g = partial.g ?? gender;
     const errors = validateForm(n, ph, addr, em, pw, cpw, g);
     // Merge: only update the fields we re-validated
     setFieldErrors((prev) => ({ ...prev, ...errors }));
@@ -277,103 +277,25 @@ export default function RegisterPage() {
 
   return (
     <>
-      {/* Page-level overrides */}
-      <style>{`
-        html, body { margin: 0; padding: 0; height: 100%; }
-        .rp-root { width: 100vw; min-height: 100vh; position: relative; overflow-x: hidden; font-family: 'Inter', 'Poppins', Arial, sans-serif; }
-        .rp-bg {
-          position: fixed; inset: 0; z-index: 0;
-          background-image: url('/register-bg.png');
-          background-size: cover;
-          background-position: left center;
-          background-repeat: no-repeat;
-        }
-        .rp-logo { position: fixed; top: 15px; left: 50px; z-index: 10; }
-        .rp-layout {
-          position: relative; z-index: 1;
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          padding: 0 84px;
-          box-sizing: border-box;
-        }
-        .rp-card {
-          width: 347px;
-          flex-shrink: 0;
-          background-color: #29292B;
-          border: 1px solid #A8F52A;
-          border-radius: 11px;
-          padding: 16px 20px 14px;
-          box-sizing: border-box;
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-          margin-top: 78px;
-          margin-bottom: 20px;
-        }
-        .rp-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          height: 26px;
-          background-color: #A8F52A;
-          color: #0d0d0d;
-          border: none;
-          border-radius: 8px;
-          font-size: 9px;
-          font-weight: 600;
-          font-family: inherit;
-          cursor: pointer;
-          letter-spacing: 0.02em;
-          margin-top: 4px;
-          transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
-        }
-        .rp-btn:hover:not(:disabled) {
-          background-color: #bfff35;
-          box-shadow: 0 2px 10px rgba(168,245,42,0.3);
-        }
-        .rp-btn:active:not(:disabled) { transform: scale(0.98); }
-        .rp-btn:disabled { background-color: #7ab81e; cursor: not-allowed; }
-        .rp-eye-btn {
-          background: none; border: none; padding: 0;
-          cursor: pointer; display: flex; align-items: center;
-          color: #888; line-height: 0;
-        }
-        .rp-eye-btn:hover { color: #555; }
-        @media (max-width: 900px) {
-          .rp-layout { padding: 0 40px; }
-        }
-        @media (max-width: 640px) {
-          .rp-layout {
-            justify-content: center;
-            padding: 80px 16px 24px;
-            align-items: flex-start;
-          }
-          .rp-card {
-            width: 100%;
-            max-width: 400px;
-            margin-top: 0;
-          }
-          .rp-logo { left: 20px; }
-        }
-      `}</style>
-
       <div className="rp-root">
         {/* Background */}
         <div className="rp-bg" aria-hidden="true" />
 
         {/* FitPro logo */}
         <div className="rp-logo">
-          <Image
-            src="/fitpro-logo.png"
-            alt="FitPro"
-            width={85}
-            height={38}
-            style={{ objectFit: "contain", filter: "drop-shadow(0 1px 8px rgba(0,0,0,0.7))" }}
-            priority
-          />
+          <Link href="/">
+            <Image
+              src="/fitpro-logo.png"
+              alt="FitPro"
+              width={85}
+              height={38}
+              style={{
+                objectFit: "contain",
+                filter: "drop-shadow(0 1px 8px rgba(0,0,0,0.7))",
+              }}
+              priority
+            />
+          </Link>
         </div>
 
         {/* Layout wrapper */}
@@ -384,7 +306,7 @@ export default function RegisterPage() {
             {/* ── Header ────────────────────────────────────────── */}
             <div style={{ textAlign: "center", marginBottom: 8 }}>
               <div aria-hidden="true" style={{ color: "#A8F52A", marginBottom: 3, lineHeight: 0 }}>
-                <Dumbbell size={18} strokeWidth={2} />
+                <Dumbbell size={18} strokeWidth={2} className="justify-center mx-auto " />
               </div>
               <h1
                 style={{
