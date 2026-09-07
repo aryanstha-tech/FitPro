@@ -63,8 +63,8 @@ export function Navbar() {
           >
             <Icon icon="el:shopping-cart" width="18" height="18" />
           </Link>
-          <Button href="/login" size="sm" className="hidden sm:inline-flex">
-            Register Now
+          <Button href="/register" size="sm" className="hidden sm:inline-flex">
+            Join Now
           </Button>
           <button
             aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -104,8 +104,8 @@ export function Navbar() {
               >
                 <Icon icon="el:shopping-cart" width="18" height="18" />
               </Link>
-              <Button size="sm" href="/login" className="ml-auto">
-                Register Now
+              <Button size="sm" href="/register" className="ml-auto">
+                Join Now
               </Button>
             </div>
           </Container>
