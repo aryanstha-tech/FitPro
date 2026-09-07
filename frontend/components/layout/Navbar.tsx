@@ -21,6 +21,8 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  if (pathname === "/register") return null;
+
   return (
     <header className="absolute inset-x-0 top-0 z-40">
       <Container className="flex h-20 items-center justify-between">
