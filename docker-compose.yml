@@ -19,6 +19,11 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: ./backend
@@ -38,7 +43,7 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
 
   worker:
     build: ./backend
@@ -46,14 +51,15 @@ services:
     volumes:
       - ./backend:/app
     env_file:
-      - path: ./backend/.env
-        required: false
+      - ./backend/.env.example
     environment:
       DATABASE_URL: postgres://fitpro:fitpro@postgres:5432/fitpro
       REDIS_URL: redis://redis:6379/0
     depends_on:
-      - backend
-      - redis
+      backend:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
   frontend:
     build:

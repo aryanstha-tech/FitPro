@@ -125,7 +125,7 @@ function FeatureCard({
   icon: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl bg-white p-5 shadow-lg">
+    <div className="rounded-xl bg-white/70 p-5 shadow-lg">
       <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black text-accent">
         {icon}
       </div>
