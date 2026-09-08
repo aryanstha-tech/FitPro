@@ -336,8 +336,12 @@ export default function RegisterPage() {
     try {
       await authService.register({
         name: name.trim(),
+        phone: phone.trim(),
+        address: address.trim(),
         email: email.trim(),
         password,
+        confirm_password: confirmPassword,
+        gender: gender as Gender,
       });
 
       router.push("/membership");
@@ -627,6 +631,7 @@ export default function RegisterPage() {
             >
               <TextField
                 label="Password"
+                placeholder="Enter your Password"
                 id={`${uid}password`}
                 name="password"
                 type={
@@ -700,6 +705,7 @@ export default function RegisterPage() {
 
             <TextField
               label="Confirm Password"
+              placeholder="Enter your Confirm Password"
               id={`${uid}confirm`}
               name="confirmPassword"
               type={

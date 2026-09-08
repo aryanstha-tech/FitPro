@@ -16,8 +16,12 @@ export interface AuthTokens {
 
 export interface RegisterPayload {
   name: string;
+  phone: string;
+  address: string;
   email: string;
   password: string;
+  confirm_password: string;
+  gender: "male" | "female";
 }
 
 export interface LoginPayload {

@@ -46,13 +46,33 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["name", "email", "password"]
+        fields = ["name", "email", "password", "phone", "address","confirm_password",
+            "gender",]
+    
+        extra_kwargs = {
+            "phone": {"required": True},
+            "address": {"required": True},
+            "gender": {"required": True},
+        }
+
+    def validate(self, attrs):
+        if attrs["password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError({
+                "confirm_password": "Passwords do not match."
+            })
+
+        return attrs
 
     def create(self, validated_data):
+        validated_data.pop("confirm_password")
+
         return User.objects.create_user(
             email=validated_data["email"],
             name=validated_data["name"],
             password=validated_data["password"],
+            phone=validated_data["phone"],
+            address=validated_data["address"],
+            gender=validated_data["gender"],
         )
 
 

@@ -42,10 +42,21 @@ class User(AbstractUser):
         STAFF = "staff", "Staff"
         ADMIN = "admin", "Admin"
 
+    class Gender(models.TextChoices):
+        MALE = "male", "Male"
+        FEMALE = "female", "Female"
+
     username = None
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=150)
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.MEMBER)
+    phone = models.CharField(
+        max_length=15,
+        blank=False,
+    )
+
+    address = models.CharField(max_length=255, blank=False,)
+    gender = models.CharField(max_length=10, choices=Gender.choices, blank=False,)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["name"]
