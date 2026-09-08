@@ -38,9 +38,8 @@
   }
 }
 
-/* Register Page */
 /* =========================================================
-   FITPRO REGISTER PAGE
+   REGISTER PAGE
    ========================================================= */
 
 .rp-root {
@@ -55,9 +54,7 @@
 }
 
 
-/* =========================================================
-   BACKGROUND
-   ========================================================= */
+/* Background */
 
 .rp-bg {
   position: fixed;
@@ -70,7 +67,6 @@
   background-repeat: no-repeat;
 }
 
-/* Dark gradient for better card readability */
 .rp-bg::after {
   content: "";
   position: absolute;
@@ -86,9 +82,7 @@
 }
 
 
-/* =========================================================
-   LOGO
-   ========================================================= */
+/* Logo */
 
 .rp-logo {
   position: absolute;
@@ -111,9 +105,7 @@
 }
 
 
-/* =========================================================
-   MAIN LAYOUT
-   ========================================================= */
+/* Main layout */
 
 .rp-layout {
   position: relative;
@@ -123,31 +115,28 @@
   min-height: 100vh;
 
   display: flex;
+
   align-items: center;
   justify-content: flex-end;
 
-  padding: 40px 7vw 40px 40px;
+  padding: 30px 6vw 30px 40px;
 
   box-sizing: border-box;
 }
 
 
-/* =========================================================
-   REGISTER CARD
-   ========================================================= */
+/* Register card */
 
 .rp-card {
-  width: min(440px, 38vw);
+  width: 480px;
 
-  flex-shrink: 0;
+  background: rgba(35, 35, 37, 0.97);
 
-  background: rgba(35, 35, 37, 0.96);
+  border: 1.5px solid #a8f52a;
 
-  border: 1px solid #a8f52a;
+  border-radius: 16px;
 
-  border-radius: 14px;
-
-  padding: 24px 25px 20px;
+  padding: 30px 30px 25px;
 
   box-sizing: border-box;
 
@@ -155,16 +144,12 @@
   flex-direction: column;
 
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.45),
-    0 0 35px rgba(168, 245, 42, 0.05);
-
-  backdrop-filter: blur(5px);
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 35px rgba(168, 245, 42, 0.06);
 }
 
 
-/* =========================================================
-   REGISTER BUTTON
-   ========================================================= */
+/* Register button */
 
 .rp-btn {
   display: flex;
@@ -172,17 +157,17 @@
   justify-content: center;
 
   width: 100%;
-  height: 36px;
+  height: 44px;
 
-  margin-top: 6px;
+  margin-top: 4px;
 
   background: #a8f52a;
   color: #0d0d0d;
 
   border: none;
-  border-radius: 8px;
+  border-radius: 9px;
 
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 
   font-family: inherit;
@@ -201,7 +186,7 @@
   background: #bfff35;
 
   box-shadow:
-    0 4px 18px rgba(168, 245, 42, 0.25);
+    0 4px 20px rgba(168, 245, 42, 0.25);
 }
 
 .rp-btn:active:not(:disabled) {
@@ -214,9 +199,7 @@
 }
 
 
-/* =========================================================
-   PASSWORD EYE BUTTON
-   ========================================================= */
+/* Password eye */
 
 .rp-eye-btn {
   background: none;
@@ -229,7 +212,7 @@
   display: flex;
   align-items: center;
 
-  color: #777;
+  color: #666;
 
   line-height: 0;
 
@@ -237,76 +220,54 @@
 }
 
 .rp-eye-btn:hover {
-  color: #444;
+  color: #333;
 }
 
-
 /* =========================================================
-   LAPTOP / LOQ 14"
-   Approximately 1366 × 768
-   ========================================================= */
-
-@media (max-width: 1400px) {
-
-  .rp-layout {
-    padding-right: 5vw;
-    padding-left: 30px;
-  }
-
-  .rp-card {
-    width: 420px;
-
-    padding: 20px 23px 18px;
-
-    border-radius: 13px;
-  }
-
-  .rp-logo {
-    top: 18px;
-    left: 35px;
-  }
-}
-
-
-/* =========================================================
-   SHORT LAPTOP SCREEN
-   Important for 768px height
+   14-INCH LAPTOP — 1366 × 768
+   Keep everything visible without scrolling
    ========================================================= */
 
 @media (max-width: 1400px) and (max-height: 800px) {
 
   .rp-layout {
-    padding-top: 20px;
-    padding-bottom: 20px;
+    min-height: 100vh;
+
+    align-items: center;
+    justify-content: flex-end;
+
+    padding: 15px 4vw 15px 30px;
   }
 
   .rp-card {
-    width: 410px;
+    width: 460px;
 
-    padding: 17px 21px 15px;
+    padding: 18px 26px 16px;
 
-    border-radius: 12px;
+    border-radius: 15px;
+  }
+
+  .rp-logo {
+    top: 16px;
+    left: 35px;
   }
 }
 
-
 /* =========================================================
-   VERY SHORT SCREEN
+   SHORT SCREEN
    ========================================================= */
 
 @media (max-height: 700px) {
+
+  .rp-root {
+    overflow-y: auto;
+  }
 
   .rp-layout {
     align-items: flex-start;
 
     padding-top: 65px;
-    padding-bottom: 15px;
-
-    overflow-y: auto;
-  }
-
-  .rp-card {
-    margin-bottom: 15px;
+    padding-bottom: 25px;
   }
 }
 
@@ -324,7 +285,7 @@
   }
 
   .rp-card {
-    width: min(440px, 90vw);
+    width: min(460px, 90vw);
   }
 
   .rp-logo {
@@ -362,7 +323,7 @@
 
     padding: 22px 18px 18px;
 
-    border-radius: 12px;
+    border-radius: 13px;
   }
 
   .rp-logo {
@@ -384,6 +345,6 @@
   }
 
   .rp-card {
-    padding: 18px 15px 16px;
+    padding: 19px 15px 17px;
   }
 }
