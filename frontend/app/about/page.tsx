@@ -14,7 +14,7 @@ const values = [
   },
   {
     title: "Open early, open late",
-    description: "5am–11pm, seven days a week, so training fits your schedule.",
+    description: "4am–9pm, seven days a week, so training fits your schedule.",
   },
 ];
 
@@ -33,7 +33,7 @@ export default function AboutPage() {
             </p>
           </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-card bg-base-raised">
-            <Image src="/hero-gym.jpg" alt="FitPro gym floor" fill className="object-cover" />
+            <Image src="/gym-floor.webp" alt="FitPro gym floor" fill className="object-cover" />
           </div>
         </div>
 
