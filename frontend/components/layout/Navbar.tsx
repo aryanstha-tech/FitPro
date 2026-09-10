@@ -21,7 +21,7 @@ export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  if (pathname === "/register") return null;
+  if (pathname === "/register" || pathname === "/login") return null;
 
   return (
     <header className="absolute inset-x-0 top-0 z-40">

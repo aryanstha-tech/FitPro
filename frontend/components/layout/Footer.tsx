@@ -204,7 +204,7 @@ function Newsletter() {
 // ── Main Footer ────────────────────────────────────────────────────────────
 export function Footer() {
   const pathname = usePathname();
-  if (pathname === "/register") return null;
+  if (pathname === "/register" || pathname === "/login") return null;
 
   return (
     <footer className="relative overflow-hidden border-t border-base-border bg-base">
