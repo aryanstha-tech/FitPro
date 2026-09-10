@@ -8,7 +8,7 @@ import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { productService } from "@/services/product.service";
 import { ApiError } from "@/lib/api-client";
-import type { Product as MockProduct } from "@/lib/mock-data";
+import type { Product } from "@/types/product";
 
 function slugify(name: string): string {
   return name
@@ -19,31 +19,20 @@ function slugify(name: string): string {
 }
 
 export default function ProductManagementPage() {
-  const [products, setProducts] = useState<MockProduct[] | null>(null);
+ const [products, setProducts] = useState<Product[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function loadProducts() {
-    productService
-      .list()
-      .then((data) =>
-        setProducts(
-          data.map((p) => ({
-            id: String(p.id),
-            slug: p.slug,
-            name: p.name,
-            price: Number(p.price),
-            category: p.category,
-            image: p.image,
-            description: p.description,
-            inStock: p.inStock,
-          }))
-        )
-      )
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Couldn't load products."));
-  }
+  productService
+    .list()
+    .then(setProducts)
+    .catch((err) =>
+      setError(err instanceof ApiError ? err.message : "Couldn't load products.")
+    );
+}
 
   useEffect(loadProducts, []);
 

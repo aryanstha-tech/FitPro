@@ -262,8 +262,12 @@ export function Footer() {
           <div className="grid gap-10 md:grid-cols-[1.8fr_1fr_1fr_1fr]">
             {/* Brand column */}
             <div className="flex flex-col gap-5">
-              <Link href="/" className="inline-block font-display text-2xl text-ink">
-                Fit<span style={{ color: "#B6E509" }}>Pro</span>
+              <Link href="/" className="flex items-center">
+                <img
+                  src="/fitpro-logo.png"
+                  alt="FitPro"
+                  className="h-10 w-auto"
+                />
               </Link>
               <p className="max-w-xs text-sm text-ink-muted" style={{ lineHeight: 1.8 }}>
                 Memberships, coaching and gear —
