@@ -8,6 +8,7 @@ import clsx from "clsx";
 import { Icon } from "@iconify/react";
 import { Container } from "./Container";
 import { Button } from "../ui/Button";
+import { useCart } from "@/lib/cart-context";
 
 const links = [
   { href: "/", label: "Home" },
@@ -20,6 +21,7 @@ const links = [
 export function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { itemCount } = useCart();
 
   if (pathname === "/register" || pathname === "/login") return null;
 
@@ -64,6 +66,11 @@ export function Navbar() {
             className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-base transition-transform hover:scale-105"
           >
             <Icon icon="el:shopping-cart" width="18" height="18" />
+            {itemCount > 0 && (
+              <span className="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[10px] font-semibold text-base">
+                {itemCount}
+              </span>
+            )}
           </Link>
           <Button href="/register" size="sm" className="hidden sm:inline-flex">
             Join Now

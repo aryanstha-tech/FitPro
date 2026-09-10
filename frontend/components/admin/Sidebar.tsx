@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Users, Tag, ShoppingBag, Boxes, UserCog, BarChart3 } from "lucide-react";
+import { LayoutDashboard, Users, Tag, ShoppingBag, Package, Boxes, UserCog, BarChart3 } from "lucide-react";
 import clsx from "clsx";
 
 const links = [
@@ -10,6 +10,7 @@ const links = [
   { href: "/admin/memberships", label: "Memberships", icon: Users },
   { href: "/admin/packages", label: "Packages", icon: Tag },
   { href: "/admin/products", label: "Products", icon: ShoppingBag },
+  { href: "/admin/orders", label: "Orders", icon: Package },
   { href: "/admin/inventory", label: "Inventory", icon: Boxes },
   { href: "/admin/staff", label: "Staff", icon: UserCog },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },

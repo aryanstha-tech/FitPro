@@ -2,7 +2,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/Container";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
+import { AddToCartButton } from "@/components/shop/AddToCartButton";
 import { productService } from "@/services/product.service";
 import { ApiError } from "@/lib/api-client";
 
@@ -49,9 +49,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </Badge>
           </div>
           <p className="mt-6 max-w-md text-sm text-ink-muted">{product.description}</p>
-          <Button size="lg" className="mt-8" disabled={!product.inStock}>
-            {product.inStock ? "Add to cart" : "Notify me"}
-          </Button>
+          <AddToCartButton product={product} />
         </div>
       </Container>
     </div>
