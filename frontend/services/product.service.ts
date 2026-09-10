@@ -9,8 +9,11 @@ interface ListProductsParams {
 }
 
 export const productService = {
-  create(payload: Omit<Product, "id" | "inStock">): Promise<Product> {
-    return apiFetch<Product>("/products/", { method: "POST", body: payload });
+  create(payload: FormData): Promise<Product> {
+    return apiFetch<Product>("/products/", {
+      method: "POST",
+      body: payload,
+    });
   },
 
   async list(params: ListProductsParams = {}): Promise<Product[]> {

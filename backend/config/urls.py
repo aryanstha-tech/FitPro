@@ -3,8 +3,9 @@ Root URL conf — every app's urls.py is included under /api/v1/, per
 API_CONTRACTS.md. Django admin stays at /admin/ for staff data entry
 during development.
 """
-
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
 from apps.accounts.urls import member_urlpatterns
 
@@ -20,3 +21,5 @@ urlpatterns = [
     path("api/v1/", include("apps.payments.urls")),
     path("api/v1/", include("apps.analytics.urls")),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

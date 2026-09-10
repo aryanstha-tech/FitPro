@@ -38,15 +38,27 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   const { body, auth = true, headers, ...rest } = options;
   const token = auth ? getAccessToken() : null;
 
+  const isFormData = body instanceof FormData;
+
+  const requestHeaders: HeadersInit = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...headers,
+  };
+
+  if (!isFormData) {
+    requestHeaders["Content-Type"] = "application/json";
+  }
+
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...headers,
-    },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    headers: requestHeaders,
+    body: body !== undefined
+      ? isFormData
+        ? body
+        : JSON.stringify(body)
+      : undefined,
   });
+
 
   if (response.status === 204) return undefined as T;
 

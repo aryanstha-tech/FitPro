@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, filters
-
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 from apps.accounts.permissions import IsAdmin
 from .models import Product
 from .serializers import ProductSerializer
@@ -14,6 +14,7 @@ class ProductViewSet(viewsets.ModelViewSet):
 
     queryset = Product.objects.filter(is_active=True).select_related("inventory")
     serializer_class = ProductSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     lookup_field = "slug"
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ["category"]
