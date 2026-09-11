@@ -23,7 +23,7 @@ export function CartItem({
   return (
     <div className="flex items-center gap-4 border-b border-base-border py-4 last:border-0">
       <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-control bg-base-raised">
-        <Image src={image} alt={name} fill className="object-cover" />
+        <img src={image} alt={name} className="h-full w-full object-cover" />
       </div>
 
       <div className="flex-1">

@@ -36,7 +36,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <div className="pb-24 pt-36">
       <Container className="grid gap-10 lg:grid-cols-2">
         <div className="relative aspect-square overflow-hidden rounded-card bg-base-raised">
-          <Image src={product.image} alt={product.name} fill className="object-cover" />
+          <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
         </div>
 
         <div>
