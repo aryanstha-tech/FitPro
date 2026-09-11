@@ -34,6 +34,30 @@ interface RequestOptions extends Omit<RequestInit, "body"> {
   auth?: boolean; // attach the bearer token, default true
 }
 
+function normalizeMediaUrls<T>(data: T): T {
+  if (typeof data === "string") {
+    return data.replace(
+      "http://backend:8000/media/",
+      "http://localhost:8000/media/"
+    ) as T;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map(normalizeMediaUrls) as T;
+  }
+
+  if (data && typeof data === "object") {
+    return Object.fromEntries(
+      Object.entries(data).map(([key, value]) => [
+        key,
+        normalizeMediaUrls(value),
+      ])
+    ) as T;
+  }
+
+  return data;
+}
+
 export async function apiFetch<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { body, auth = true, headers, ...rest } = options;
   const token = auth ? getAccessToken() : null;
@@ -71,5 +95,5 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     throw new ApiError(response.status, message, fieldErrors);
   }
 
-  return data as T;
+  return normalizeMediaUrls(data);
 }

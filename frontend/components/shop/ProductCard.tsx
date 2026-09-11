@@ -19,11 +19,10 @@ export function ProductCard({ slug, name, price, category, image, inStock }: Pro
       className="group block overflow-hidden rounded-card border border-base-border bg-base-surface transition-colors hover:border-ink/20"
     >
       <div className="relative aspect-square overflow-hidden bg-base-raised">
-        <Image
+        <img
           src={image}
           alt={name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+          className="h-full w-full object-cover"
         />
         {!inStock && (
           <div className="absolute inset-x-3 top-3">
