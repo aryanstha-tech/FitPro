@@ -33,7 +33,7 @@ export default async function ShopPage() {
         </div>
 
         <div className="mt-14">
-          <ProductGrid products={adapted} />
+          <ProductGrid products={products} />
         </div>
       </Container>
     </div>

@@ -3,9 +3,10 @@ import Link from "next/link";
 import { Badge } from "../ui/Badge";
 
 interface ProductCardProps {
+  id: number;
   slug: string;
   name: string;
-  price: number;
+  price: string;
   category: string;
   image: string;
   inStock: boolean;
