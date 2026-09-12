@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DataTable } from "@/components/admin/DataTable";
 import { Badge } from "@/components/ui/Badge";
+import { daysUntil, formatDate } from "@/components/membership/MembershipCard";
 import { memberService } from "@/services/member.service";
 import { ApiError } from "@/lib/api-client";
 import type { Member } from "@/types/member";
@@ -41,6 +42,24 @@ export default function MembershipManagementPage() {
               { header: "Email", render: (m) => <span className="text-ink-muted">{m.email}</span> },
               { header: "Plan", render: (m) => m.plan ?? "—" },
               { header: "Member since", render: (m) => <span className="text-ink-muted">{m.memberSince}</span> },
+              {
+                header: "Expiry",
+                render: (m) => {
+                  if (!m.renewsOn) return <span className="text-ink-faint">—</span>;
+                  const remaining = daysUntil(m.renewsOn);
+                  const soon = m.planStatus !== "expired" && remaining >= 0 && remaining <= 3;
+                  return (
+                    <div className="flex items-center gap-2">
+                      <span className="text-ink-muted">{formatDate(m.renewsOn)}</span>
+                      {soon && (
+                        <Badge tone="warning">
+                          {remaining} {remaining === 1 ? "day" : "days"}
+                        </Badge>
+                      )}
+                    </div>
+                  );
+                },
+              },
               { header: "Status", render: (m) => <Badge tone={statusTone[m.planStatus]}>{m.planStatus}</Badge> },
             ]}
           />

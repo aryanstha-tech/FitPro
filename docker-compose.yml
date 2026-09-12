@@ -55,6 +55,22 @@ services:
       - backend
       - redis
 
+  beat:
+    build: ./backend
+    command: celery -A config beat -l info
+    volumes:
+      - ./backend:/app
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      DATABASE_URL: postgres://fitpro:fitpro@postgres:5432/fitpro
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      - backend
+      - redis
+
+
   frontend:
     build:
       context: ./frontend

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MembershipCard } from "@/components/membership/MembershipCard";
 import { PackageCard } from "@/components/membership/PackageCard";
 import { membershipService } from "@/services/membership.service";
+import { useSwitchPlan } from "@/lib/use-switch-plan";
 import { ApiError } from "@/lib/api-client";
 import type { Membership } from "@/types/membership";
 import type { Package as MockPackage } from "@/lib/mock-data";
@@ -12,8 +13,9 @@ export default function MembershipDetailsPage() {
   const [membership, setMembership] = useState<Membership | "none" | null>(null);
   const [otherPlans, setOtherPlans] = useState<MockPackage[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false); // true while cancel/renew is in flight
 
-  useEffect(() => {
+  function loadMembership() {
     membershipService
       .myMembership()
       .then(setMembership)
@@ -24,6 +26,12 @@ export default function MembershipDetailsPage() {
           setError(err instanceof ApiError ? err.message : "Couldn't load membership.");
         }
       });
+  }
+
+  const { switchPlan, switchingId, error: switchError } = useSwitchPlan(loadMembership);
+
+  useEffect(() => {
+    loadMembership();
 
     membershipService
       .listPackages()
@@ -42,6 +50,32 @@ export default function MembershipDetailsPage() {
       .catch(() => setOtherPlans([]));
   }, []);
 
+  async function handleCancel() {
+    setError(null);
+    setBusy(true);
+    try {
+      await membershipService.cancel();
+      loadMembership(); // status flips to "expiring" — MembershipCard reflects it immediately
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Couldn't cancel membership.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleRenew() {
+    setError(null);
+    setBusy(true);
+    try {
+      await membershipService.renew();
+      loadMembership();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Couldn't renew membership.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const currentPlanName = membership && membership !== "none" ? membership.package.name : null;
   const switchablePlans = otherPlans?.filter((p) => p.name !== currentPlanName) ?? null;
 
@@ -49,7 +83,7 @@ export default function MembershipDetailsPage() {
     <div>
       <h1 className="text-display-md text-ink">Membership</h1>
 
-      {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+      {(error || switchError) && <p className="mt-4 text-sm text-red-400">{error ?? switchError}</p>}
 
       {membership === null && !error && (
         <p className="mt-4 text-sm text-ink-muted">Loading membership...</p>
@@ -67,6 +101,9 @@ export default function MembershipDetailsPage() {
             planName={membership.package.name}
             status={membership.status}
             renewsOn={membership.renews_on}
+            onCancel={handleCancel}
+            onRenew={handleRenew}
+            busy={busy}
           />
         </div>
       )}
@@ -79,7 +116,12 @@ export default function MembershipDetailsPage() {
       ) : (
         <div className="grid gap-6 sm:grid-cols-2">
           {switchablePlans.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} />
+            <PackageCard
+              key={pkg.id}
+              pkg={pkg}
+              onChoose={() => switchPlan(pkg.id)}
+              loading={switchingId === pkg.id}
+            />
           ))}
         </div>
       )}

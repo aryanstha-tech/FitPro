@@ -43,7 +43,7 @@ class CurrentUserSerializer(serializers.ModelSerializer):
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
-
+    confirm_password = serializers.CharField(write_only=True)
     class Meta:
         model = User
         fields = ["name", "email", "password", "phone", "address","confirm_password",

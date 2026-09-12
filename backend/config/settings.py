@@ -134,9 +134,21 @@ CELERY_BEAT_SCHEDULE = {
         "task": "apps.notifications.tasks.expire_overdue_memberships",
         "schedule": 60 * 60 * 24,
     },
+    "send-renewal-reminders-daily": {
+        "task": "apps.notifications.tasks.send_expiry_reminders",
+        "schedule": 60 * 60 * 24,
+    },
 }
 
 # ── Payments ────────────────────────────────────────────────
 USE_REAL_PAYMENT_PROVIDER = os.environ.get("USE_REAL_PAYMENT_PROVIDER", "false").lower() == "true"
 
+# ── Email (console backend by default) ──────────────────────
+# To test real email delivery, replace `console.EmailBackend` with a
+# SMTP backend (e.g. django.core.mail.backends.smtp.EmailBackend) and
+# configure the corresponding settings (EMAIL_HOST, EMAIL_PORT, etc.).
+#
+# For now (local dev with console backend) this is enough to prove the
+# notification tasks actually enqueue emails.
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "[EMAIL_ADDRESS]")

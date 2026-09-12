@@ -7,9 +7,15 @@ import clsx from "clsx";
 
 interface PackageCardProps {
   pkg: Package;
+  // Optional: only the public /membership page passes this. admin/packages
+  // renders the same card for management purposes, where "Choose" isn't
+  // a real action, so leaving this undefined there keeps that page's
+  // behavior exactly as it was before.
+  onChoose?: () => void;
+  loading?: boolean;
 }
 
-export function PackageCard({ pkg }: PackageCardProps) {
+export function PackageCard({ pkg, onChoose, loading }: PackageCardProps) {
   return (
     <Card
       className={clsx(
@@ -37,8 +43,13 @@ export function PackageCard({ pkg }: PackageCardProps) {
       </ul>
 
       <CardFooter>
-        <Button variant={pkg.featured ? "primary" : "secondary"} className="w-full">
-          Choose {pkg.name}
+        <Button
+          variant={pkg.featured ? "primary" : "secondary"}
+          className="w-full"
+          onClick={onChoose}
+          disabled={loading}
+        >
+          {loading ? "Setting up..." : `Choose ${pkg.name}`}
         </Button>
       </CardFooter>
     </Card>

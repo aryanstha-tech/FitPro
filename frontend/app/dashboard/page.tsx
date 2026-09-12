@@ -14,9 +14,12 @@ import type { Membership } from "@/types/membership";
 import type { Order as MockOrder } from "@/lib/mock-data";
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [user, setUser] = useState<CurrentUser | null>(() => authService.getCachedUser());
   const [membership, setMembership] = useState<Membership | "none" | null>(null);
   const [orders, setOrders] = useState<MockOrder[] | null>(null);
+  // Tracked separately from `orders` (which is sliced to 3 for the preview
+  // table below) so the stat card always shows the real total, not "3".
+  const [orderCount, setOrderCount] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,7 +37,8 @@ export default function DashboardPage() {
 
     orderService
       .myOrders()
-      .then((data) =>
+      .then((data) => {
+        setOrderCount(data.length);
         setOrders(
           data.slice(0, 3).map((o) => ({
             id: String(o.id),
@@ -43,9 +47,12 @@ export default function DashboardPage() {
             total: Number(o.total),
             status: o.status,
           }))
-        )
-      )
-      .catch(() => setOrders([]));
+        );
+      })
+      .catch(() => {
+        setOrderCount(0);
+        setOrders([]);
+      });
   }, []);
 
   if (error) return <p className="text-sm text-red-400">{error}</p>;
@@ -62,7 +69,7 @@ export default function DashboardPage() {
           hint={user.renewsOn ? `Renews ${user.renewsOn}` : undefined}
         />
         <StatCard label="Member since" value={user.memberSince} />
-        <StatCard label="Orders" value={orders === null ? "..." : String(orders.length)} />
+        <StatCard label="Orders" value={orderCount === null ? "..." : String(orderCount)} />
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">

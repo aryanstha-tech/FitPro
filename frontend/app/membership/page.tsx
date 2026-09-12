@@ -1,5 +1,5 @@
 import { Container } from "@/components/layout/Container";
-import { PackageCard } from "@/components/membership/PackageCard";
+import { PackageGrid } from "@/components/membership/PackageGrid";
 import { membershipService } from "@/services/membership.service";
 import type { Package as MockPackage } from "@/lib/mock-data";
 
@@ -32,10 +32,8 @@ export default async function MembershipPage() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {adapted.map((pkg) => (
-            <PackageCard key={pkg.id} pkg={pkg} />
-          ))}
+        <div className="mt-14">
+          <PackageGrid packages={adapted} />
         </div>
       </Container>
     </div>
