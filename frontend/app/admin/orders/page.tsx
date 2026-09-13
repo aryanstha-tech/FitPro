@@ -12,12 +12,14 @@ import type { Order } from "@/types/order";
 // the table, the filter tabs, and the "advance" button all read from these
 // two maps instead of repeating status logic in three places.
 const STATUS_TONE: Record<Order["status"], "accent" | "warning" | "danger"> = {
+  pending_payment: "warning",
   delivered: "accent",
   processing: "warning",
   cancelled: "danger",
 };
 
 const NEXT_STATUS: Record<Order["status"], Order["status"] | null> = {
+  pending_payment: null, // only verify-payment (Khalti callback) can move this one
   processing: "delivered",
   delivered: null,
   cancelled: null,
@@ -27,6 +29,7 @@ type StatusFilter = "all" | Order["status"];
 
 const FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
+  { value: "pending_payment", label: "Awaiting payment" },
   { value: "processing", label: "Processing" },
   { value: "delivered", label: "Delivered" },
   { value: "cancelled", label: "Cancelled" },
@@ -68,10 +71,12 @@ export default function OrderManagementPage() {
     const list = orders ?? [];
     const processing = list.filter((o) => o.status === "processing").length;
     const delivered = list.filter((o) => o.status === "delivered").length;
-    // Order.total comes from the API as a string (DRF serializes Decimal
-    // fields as strings to avoid float rounding) — same pattern as
-    // Product.price elsewhere in this codebase.
-    const revenue = list.reduce((sum, o) => sum + Number(o.total), 0);
+    // Only count money that's actually been received — a pending_payment
+    // order hasn't been paid for yet (or ever might be), and a cancelled
+    // one never was.
+    const revenue = list
+      .filter((o) => o.status === "processing" || o.status === "delivered")
+      .reduce((sum, o) => sum + Number(o.total), 0);
     return { count: list.length, processing, delivered, revenue };
   }, [orders]);
 

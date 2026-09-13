@@ -26,6 +26,16 @@ function CartContent() {
         items: lines.map((line) => ({ productId: line.productId, quantity: line.quantity })),
         idempotencyKey,
       });
+      if (order.paymentUrl) {
+        // Khalti (or any redirect-based gateway): the order exists but is
+        // NOT paid yet — don't touch the cart until the callback page
+        // confirms it via verify-payment. Sending the browser away means
+        // this component unmounts, so no further state updates here.
+        window.location.href = order.paymentUrl;
+        return;
+      }
+      // MockPaymentProvider (or any gateway that resolves immediately):
+      // the order is already fully paid — safe to clear now.
       clear();
       router.push(`/dashboard/orders?placed=${order.id}`);
     } catch (err) {

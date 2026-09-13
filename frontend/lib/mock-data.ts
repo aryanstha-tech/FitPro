@@ -103,7 +103,7 @@ export interface Order {
   date: string;
   items: string;
   total: number;
-  status: "delivered" | "processing" | "cancelled";
+  status: "pending_payment" | "processing" | "delivered" | "cancelled";
 }
 
 export const orders: Order[] = [

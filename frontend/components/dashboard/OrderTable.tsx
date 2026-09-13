@@ -2,9 +2,17 @@ import { Badge } from "../ui/Badge";
 import type { Order } from "@/lib/mock-data";
 
 const statusTone = {
+  pending_payment: "warning",
   delivered: "accent",
   processing: "warning",
   cancelled: "danger",
+} as const;
+
+const statusLabel = {
+  pending_payment: "Awaiting payment",
+  delivered: "Delivered",
+  processing: "Processing",
+  cancelled: "Cancelled",
 } as const;
 
 interface OrderTableProps {
@@ -32,7 +40,7 @@ export function OrderTable({ orders }: OrderTableProps) {
               <td className="px-5 py-4 text-ink-muted">{order.items}</td>
               <td className="px-5 py-4 text-ink">${order.total}</td>
               <td className="px-5 py-4">
-                <Badge tone={statusTone[order.status]}>{order.status}</Badge>
+                <Badge tone={statusTone[order.status]}>{statusLabel[order.status]}</Badge>
               </td>
             </tr>
           ))}
