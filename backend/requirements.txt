@@ -11,3 +11,4 @@ python-dateutil>=2.9
 dj-database-url>=2.2
 gunicorn>=22.0
 Pillow
+requests>=2.32

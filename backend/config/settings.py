@@ -143,6 +143,18 @@ CELERY_BEAT_SCHEDULE = {
 # ── Payments ────────────────────────────────────────────────
 USE_REAL_PAYMENT_PROVIDER = os.environ.get("USE_REAL_PAYMENT_PROVIDER", "false").lower() == "true"
 
+
+# Khalti ePayment v2 (sandbox). Get a free secret key by signing up at
+# https://test-admin.khalti.com/#/join/merchant (sandbox login OTP: 987654).
+# Never commit a real secret key — always read it from the environment.
+KHALTI_SECRET_KEY = os.environ.get("KHALTI_SECRET_KEY", "")
+KHALTI_BASE_URL = os.environ.get("KHALTI_BASE_URL", "https://dev.khalti.com/api/v2")
+# Where Khalti redirects the browser after payment. Must be reachable from
+# the user's browser, so this is the FRONTEND's URL, not backend:8000.
+KHALTI_RETURN_URL = os.environ.get("KHALTI_RETURN_URL", "http://localhost:3000/checkout/khalti-callback")
+KHALTI_WEBSITE_URL = os.environ.get("KHALTI_WEBSITE_URL", "http://localhost:3000")
+
+
 # ── Email (console backend by default) ──────────────────────
 # To test real email delivery, replace `console.EmailBackend` with a
 # SMTP backend (e.g. django.core.mail.backends.smtp.EmailBackend) and

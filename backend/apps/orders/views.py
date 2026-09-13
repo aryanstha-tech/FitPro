@@ -1,11 +1,14 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, permissions, mixins
+from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
+from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from apps.accounts.permissions import IsStaffOrAdmin
 from .models import Order
 from .serializers import OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer
-from .services import create_order
+from .services import create_order, verify_order_payment
 
 
 class MyOrdersViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -48,19 +51,44 @@ class OrderViewSet(
         return OrderSerializer
 
     def get_permissions(self):
-        if self.action == "create":
+        if self.action in ("create", "verify_payment"):
             return [permissions.IsAuthenticated()]
         return [IsStaffOrAdmin()]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order = create_order(
+        order, redirect_url = create_order(
             user=request.user,
             items=serializer.validated_data["items"],
             idempotency_key=serializer.validated_data.get("idempotencyKey"),
         )
-        return Response(OrderSerializer(order).data, status=201)
+        data = OrderSerializer(order).data
+        if redirect_url:
+            # Present only for a redirect-based gateway (Khalti). The
+            # frontend must send the browser here — the order is NOT
+            # paid yet, it's status="pending_payment" until verify_payment
+            # confirms it.
+            data["paymentUrl"] = redirect_url
+        return Response(data, status=201)
+
+    @action(detail=True, methods=["post"], url_path="verify-payment")
+    def verify_payment(self, request, pk=None):
+        """
+        POST /api/v1/orders/{id}/verify-payment/
+        Called by the frontend's Khalti callback page once the user
+        returns from the payment page. Re-checks with the gateway
+        server-to-server rather than trusting the redirect's own
+        query params.
+        """
+        order = get_object_or_404(Order, pk=pk)
+        is_owner = order.user_id == request.user.id
+        is_staff_or_admin = getattr(request.user, "role", None) in ("staff", "admin")
+        if not (is_owner or is_staff_or_admin):
+            raise PermissionDenied("You don't have permission to verify this order.")
+
+        order = verify_order_payment(order)
+        return Response(OrderSerializer(order).data)
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()

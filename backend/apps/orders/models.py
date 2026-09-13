@@ -6,18 +6,23 @@ class Order(models.Model):
     """Matches the Order TS interface in frontend/lib/mock-data.ts."""
 
     class Status(models.TextChoices):
+        PENDING_PAYMENT = "pending_payment", "Pending payment"
         PROCESSING = "processing", "Processing"
         DELIVERED = "delivered", "Delivered"
         CANCELLED = "cancelled", "Cancelled"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PROCESSING)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PROCESSING)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     # Prevents duplicate order creation on client retry (e.g. double-click,
     # network retry) — same key returns the original order instead of a
     # second one, per the plan's "Duplicate payment prevention" test.
     idempotency_key = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    # The payment gateway's own reference for this order — Khalti's pidx
+    # for a real payment, or MockPaymentProvider's mock_<key> string.
+    # Needed by verify_order_payment() to look the payment back up.
+    payment_reference = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ["-created_at"]
