@@ -31,7 +31,7 @@ function KhaltiCallbackContent() {
             .verifyPayment(Number(orderId))
             .then((result) => {
                 setOrder(result);
-                if (result.status === "processing") clear(); // only now do we know it was really paid
+                if (result.status === "paid") clear(); // only now do we know it was really paid
             })
             .catch((err) => setError(err instanceof ApiError ? err.message : "Couldn't verify payment."));
     }, [params]);
@@ -52,8 +52,16 @@ function KhaltiCallbackContent() {
         return <p className="text-sm text-ink-muted">Confirming your payment...</p>;
     }
 
-    if (order.status === "processing") {
-        return (
+    if (order.status === "paid") {
+        return order.packageName ? (
+            <>
+                <h1 className="text-display-md text-ink">Payment successful</h1>
+                <p className="mt-2 text-sm text-ink-muted">Your {order.packageName} membership is now active.</p>
+                <Link href="/dashboard/membership" className="mt-6 inline-block text-sm text-accent hover:underline">
+                    View your membership
+                </Link>
+            </>
+        ) : (
             <>
                 <h1 className="text-display-md text-ink">Payment successful</h1>
                 <p className="mt-2 text-sm text-ink-muted">Order #{order.id} is confirmed.</p>
@@ -65,16 +73,22 @@ function KhaltiCallbackContent() {
     }
 
     // Anything else here means verify_order_payment's fallback ran:
-    // status was Pending/Expired/User canceled at Khalti, so the backend
-    // already released the reserved stock and marked this order cancelled.
+    // status was Pending/Expired/User canceled at Khalti. For a product
+    // order the backend already released the reserved stock; for a
+    // membership order, nothing was ever activated in the first place.
     return (
         <>
             <h1 className="text-display-md text-ink">Payment didn&apos;t complete</h1>
             <p className="mt-2 text-sm text-ink-muted">
-                You weren&apos;t charged, and your cart is unchanged — you can try again whenever you&apos;re ready.
+                You weren&apos;t charged
+                {order.packageName ? " and your membership wasn't changed" : ", and your cart is unchanged"} — you
+                can try again whenever you&apos;re ready.
             </p>
-            <Link href="/cart" className="mt-6 inline-block text-sm text-accent hover:underline">
-                Back to cart
+            <Link
+                href={order.packageName ? "/membership" : "/cart"}
+                className="mt-6 inline-block text-sm text-accent hover:underline"
+            >
+                {order.packageName ? "Back to membership plans" : "Back to cart"}
             </Link>
         </>
     );

@@ -7,12 +7,13 @@ class Order(models.Model):
 
     class Status(models.TextChoices):
         PENDING_PAYMENT = "pending_payment", "Pending payment"
+        PAID = "paid", "Paid"
         PROCESSING = "processing", "Processing"
         DELIVERED = "delivered", "Delivered"
         CANCELLED = "cancelled", "Cancelled"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
-    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PROCESSING)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PAID)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     # Prevents duplicate order creation on client retry (e.g. double-click,
@@ -23,6 +24,13 @@ class Order(models.Model):
     # for a real payment, or MockPaymentProvider's mock_<key> string.
     # Needed by verify_order_payment() to look the payment back up.
     payment_reference = models.CharField(max_length=100, null=True, blank=True)
+    # Set only for a membership purchase (mutually exclusive with having
+    # OrderItems, which are for product/shop orders). PROTECT for the same
+    # reason as Membership.package: a package with paid order history
+    # shouldn't be deletable out from under those records.
+    package = models.ForeignKey(
+        "memberships.Package", on_delete=models.PROTECT, null=True, blank=True, related_name="orders"
+    )
 
     class Meta:
         ordering = ["-created_at"]
@@ -32,6 +40,8 @@ class Order(models.Model):
 
     @property
     def items_summary(self) -> str:
+        if self.package_id:
+            return f"{self.package.name} membership"
         parts = []
         for item in self.items.select_related("product").all():
             label = item.product.name

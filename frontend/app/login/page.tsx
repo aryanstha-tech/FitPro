@@ -31,11 +31,11 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      await authService.login({
+      const { user } = await authService.login({
         email: email.trim(),
         password,
       });
-      router.push("/dashboard");
+      router.push(user.role === "staff" || user.role === "admin" ? "/admin" : "/dashboard");
     } catch (err) {
       setError(
         err instanceof ApiError

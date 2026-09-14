@@ -13,6 +13,7 @@ import type { Order } from "@/types/order";
 // two maps instead of repeating status logic in three places.
 const STATUS_TONE: Record<Order["status"], "accent" | "warning" | "danger"> = {
   pending_payment: "warning",
+  paid: "accent",
   delivered: "accent",
   processing: "warning",
   cancelled: "danger",
@@ -20,6 +21,7 @@ const STATUS_TONE: Record<Order["status"], "accent" | "warning" | "danger"> = {
 
 const NEXT_STATUS: Record<Order["status"], Order["status"] | null> = {
   pending_payment: null, // only verify-payment (Khalti callback) can move this one
+  paid: "processing", // admin starts fulfilling a confirmed-paid order
   processing: "delivered",
   delivered: null,
   cancelled: null,
@@ -30,6 +32,7 @@ type StatusFilter = "all" | Order["status"];
 const FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All" },
   { value: "pending_payment", label: "Awaiting payment" },
+  { value: "paid", label: "Paid" },
   { value: "processing", label: "Processing" },
   { value: "delivered", label: "Delivered" },
   { value: "cancelled", label: "Cancelled" },
@@ -69,15 +72,16 @@ export default function OrderManagementPage() {
   // "Avg. order value" (computed client-side from data already on hand).
   const stats = useMemo(() => {
     const list = orders ?? [];
+    const paid = list.filter((o) => o.status === "paid").length;
     const processing = list.filter((o) => o.status === "processing").length;
     const delivered = list.filter((o) => o.status === "delivered").length;
     // Only count money that's actually been received — a pending_payment
     // order hasn't been paid for yet (or ever might be), and a cancelled
     // one never was.
     const revenue = list
-      .filter((o) => o.status === "processing" || o.status === "delivered")
+      .filter((o) => o.status === "paid" || o.status === "processing" || o.status === "delivered")
       .reduce((sum, o) => sum + Number(o.total), 0);
-    return { count: list.length, processing, delivered, revenue };
+    return { count: list.length, paid, processing, delivered, revenue };
   }, [orders]);
 
   const visibleOrders = useMemo(() => {
@@ -96,9 +100,10 @@ export default function OrderManagementPage() {
         <p className="mt-4 text-sm text-ink-muted">Loading...</p>
       ) : (
         <>
-          <div className="mt-8 grid gap-4 sm:grid-cols-4">
+          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
             <StatCard label="Total orders" value={String(stats.count)} />
-            <StatCard label="Processing" value={String(stats.processing)} hint="Awaiting fulfillment" />
+            <StatCard label="Paid" value={String(stats.paid)} hint="Awaiting fulfillment" />
+            <StatCard label="Processing" value={String(stats.processing)} />
             <StatCard label="Delivered" value={String(stats.delivered)} />
             <StatCard label="Revenue" value={`$${stats.revenue.toLocaleString()}`} />
           </div>
