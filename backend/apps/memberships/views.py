@@ -1,13 +1,13 @@
 from datetime import date, timedelta
 
 from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.permissions import IsAdmin
 from .models import Package, Membership
 from .serializers import PackageSerializer, MembershipSerializer
+from .services import activate_membership
 
 
 class PackageViewSet(viewsets.ModelViewSet):
@@ -55,26 +55,33 @@ class MyMembershipView(APIView):
 
 
 class SwitchMembershipView(APIView):
-    """POST /api/v1/memberships/switch/  {packageId}"""
+    """
+    POST /api/v1/memberships/switch/  {userId, packageId}
 
-    permission_classes = [permissions.IsAuthenticated]
+    Admin-only manual override (comp memberships, support fixes) — NOT the
+    normal member purchase path anymore. A real member purchase goes
+    through POST /api/v1/orders/ {packageId}, which only activates the
+    membership after Khalti payment is verified (see
+    apps.orders.services.create_package_order / verify_order_payment).
+    This view bypasses payment entirely, so it must stay admin-only.
+    """
+
+    permission_classes = [IsAdmin]
 
     def post(self, request):
+        from apps.accounts.models import User
+
+        user_id = request.data.get("userId")
+        target_user = User.objects.filter(id=user_id).first()
+        if not target_user:
+            return Response({"userId": ["Invalid user."]}, status=status.HTTP_400_BAD_REQUEST)
+
         package_id = request.data.get("packageId")
         package = Package.objects.filter(id=package_id, is_active=True).first()
         if not package:
             return Response({"packageId": ["Invalid package."]}, status=status.HTTP_400_BAD_REQUEST)
 
-        Membership.objects.filter(user=request.user, status__in=["active", "expiring"]).update(
-            status=Membership.Status.EXPIRED
-        )
-        billing_days = 30 if package.billing == Package.Billing.MONTH else 365
-        membership = Membership.objects.create(
-            user=request.user,
-            package=package,
-            status=Membership.Status.ACTIVE,
-            renews_on=date.today() + timedelta(days=billing_days),
-        )
+        membership = activate_membership(user=target_user, package=package)
         return Response(MembershipSerializer(membership).data, status=status.HTTP_200_OK)
 
 

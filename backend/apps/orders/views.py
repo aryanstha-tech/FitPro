@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from apps.accounts.permissions import IsStaffOrAdmin
 from .models import Order
 from .serializers import OrderSerializer, CreateOrderSerializer, UpdateOrderStatusSerializer
-from .services import create_order, verify_order_payment
+from .services import create_order, create_package_order, verify_order_payment
 
 
 class MyOrdersViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -18,7 +18,9 @@ class MyOrdersViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user).prefetch_related("items__product")
+        return Order.objects.filter(user=self.request.user).select_related("package", "payment").prefetch_related(
+            "items__product"
+        )
 
 
 class OrderViewSet(
@@ -39,7 +41,7 @@ class OrderViewSet(
     the same path prefix across two separately-registered viewsets.
     """
 
-    queryset = Order.objects.select_related("user").prefetch_related("items__product")
+    queryset = Order.objects.select_related("user", "package", "payment").prefetch_related("items__product")
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["status"]
 
@@ -58,17 +60,28 @@ class OrderViewSet(
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        order, redirect_url = create_order(
-            user=request.user,
-            items=serializer.validated_data["items"],
-            idempotency_key=serializer.validated_data.get("idempotencyKey"),
-        )
+        idempotency_key = serializer.validated_data.get("idempotencyKey")
+
+        if "packageId" in serializer.validated_data:
+            order, redirect_url = create_package_order(
+                user=request.user,
+                package_id=serializer.validated_data["packageId"],
+                idempotency_key=idempotency_key,
+            )
+        else:
+            order, redirect_url = create_order(
+                user=request.user,
+                items=serializer.validated_data["items"],
+                idempotency_key=idempotency_key,
+            )
+
         data = OrderSerializer(order).data
         if redirect_url:
             # Present only for a redirect-based gateway (Khalti). The
             # frontend must send the browser here — the order is NOT
             # paid yet, it's status="pending_payment" until verify_payment
-            # confirms it.
+            # confirms it (and, for a membership order, until then the
+            # membership is NOT active either).
             data["paymentUrl"] = redirect_url
         return Response(data, status=201)
 

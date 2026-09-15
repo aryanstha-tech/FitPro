@@ -3,7 +3,7 @@ import type { Order } from "@/lib/mock-data";
 
 const statusTone = {
   pending_payment: "warning",
-  paid: "accent",
+  completed: "accent",
   delivered: "accent",
   processing: "warning",
   cancelled: "danger",
@@ -11,7 +11,7 @@ const statusTone = {
 
 const statusLabel = {
   pending_payment: "Awaiting payment",
-  paid: "Paid",
+  completed: "Completed",
   delivered: "Delivered",
   processing: "Processing",
   cancelled: "Cancelled",

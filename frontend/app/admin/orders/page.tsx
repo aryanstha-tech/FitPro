@@ -8,115 +8,182 @@ import { orderService } from "@/services/order.service";
 import { ApiError } from "@/lib/api-client";
 import type { Order } from "@/types/order";
 
-// One place to define how a status looks and what it can turn into next —
-// the table, the filter tabs, and the "advance" button all read from these
-// two maps instead of repeating status logic in three places.
-const STATUS_TONE: Record<Order["status"], "accent" | "warning" | "danger"> = {
+type OrderFilter =
+  | "all"
+  | "pending_payment"
+  | "processing"
+  | "completed"
+  | "delivered"
+  | "cancelled";
+
+const STATUS_TONE: Record<
+  Order["status"],
+  "accent" | "warning" | "danger"
+> = {
   pending_payment: "warning",
-  paid: "accent",
-  delivered: "accent",
   processing: "warning",
+  completed: "accent",
+  delivered: "accent",
   cancelled: "danger",
 };
 
-const NEXT_STATUS: Record<Order["status"], Order["status"] | null> = {
-  pending_payment: null, // only verify-payment (Khalti callback) can move this one
-  paid: "processing", // admin starts fulfilling a confirmed-paid order
-  processing: "delivered",
-  delivered: null,
-  cancelled: null,
+const STATUS_LABEL: Record<Order["status"], string> = {
+  pending_payment: "Pending Payment",
+  processing: "Processing",
+  completed: "Completed",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
 };
 
-type StatusFilter = "all" | Order["status"];
-
-const FILTERS: { value: StatusFilter; label: string }[] = [
+const FILTERS: { value: OrderFilter; label: string }[] = [
   { value: "all", label: "All" },
-  { value: "pending_payment", label: "Awaiting payment" },
-  { value: "paid", label: "Paid" },
+  { value: "pending_payment", label: "Pending" },
   { value: "processing", label: "Processing" },
+  { value: "completed", label: "Completed" },
   { value: "delivered", label: "Delivered" },
   { value: "cancelled", label: "Cancelled" },
 ];
 
-export default function OrderManagementPage() {
+export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<OrderFilter>("all");
   const [updatingId, setUpdatingId] = useState<number | null>(null);
-  const [filter, setFilter] = useState<StatusFilter>("all");
 
-  function loadOrders() {
+  useEffect(() => {
     orderService
       .listAll()
       .then(setOrders)
-      .catch((err) => setError(err instanceof ApiError ? err.message : "Couldn't load orders."));
-  }
+      .catch((err) =>
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Couldn't load orders."
+        )
+      );
+  }, []);
 
-  useEffect(loadOrders, []);
+  const stats = useMemo(() => {
+    const list = orders ?? [];
 
-  async function handleAdvance(order: Order) {
-    const next = NEXT_STATUS[order.status];
-    if (!next) return;
+    return {
+      total: list.length,
+      pending: list.filter(
+        (order) => order.status === "pending_payment"
+      ).length,
+      processing: list.filter(
+        (order) => order.status === "processing"
+      ).length,
+      delivered: list.filter(
+        (order) => order.status === "delivered"
+      ).length,
+    };
+  }, [orders]);
+
+  const visible = useMemo(() => {
+    if (!orders) return [];
+
+    if (filter === "all") {
+      return orders;
+    }
+
+    return orders.filter((order) => order.status === filter);
+  }, [orders, filter]);
+
+  async function markAsDelivered(order: Order) {
     setUpdatingId(order.id);
+    setError(null);
+
     try {
-      await orderService.updateStatus(order.id, next);
-      loadOrders();
+      const updatedOrder = await orderService.updateStatus(
+        order.id,
+        "delivered"
+      );
+
+      setOrders((current) =>
+        current
+          ? current.map((item) =>
+              item.id === updatedOrder.id
+                ? updatedOrder
+                : item
+            )
+          : current
+      );
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't update order.");
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : "Couldn't update the order."
+      );
     } finally {
       setUpdatingId(null);
     }
   }
 
-  // Derived from the orders we already fetched — no separate summary
-  // endpoint needed, same approach admin/analytics/page.tsx uses for
-  // "Avg. order value" (computed client-side from data already on hand).
-  const stats = useMemo(() => {
-    const list = orders ?? [];
-    const paid = list.filter((o) => o.status === "paid").length;
-    const processing = list.filter((o) => o.status === "processing").length;
-    const delivered = list.filter((o) => o.status === "delivered").length;
-    // Only count money that's actually been received — a pending_payment
-    // order hasn't been paid for yet (or ever might be), and a cancelled
-    // one never was.
-    const revenue = list
-      .filter((o) => o.status === "paid" || o.status === "processing" || o.status === "delivered")
-      .reduce((sum, o) => sum + Number(o.total), 0);
-    return { count: list.length, paid, processing, delivered, revenue };
-  }, [orders]);
-
-  const visibleOrders = useMemo(() => {
-    if (!orders) return [];
-    if (filter === "all") return orders;
-    return orders.filter((o) => o.status === filter);
-  }, [orders, filter]);
-
-  if (error) return <p className="text-sm text-red-400">{error}</p>;
+  if (error && orders === null) {
+    return (
+      <p className="text-sm text-red-400">
+        {error}
+      </p>
+    );
+  }
 
   return (
     <div>
-      <h1 className="text-display-md text-ink">Orders</h1>
+      <div>
+        <h1 className="text-display-md text-ink">
+          Orders
+        </h1>
+
+        <p className="mt-2 text-sm text-ink-muted">
+          Manage customer orders and fulfillment.
+        </p>
+      </div>
 
       {orders === null ? (
-        <p className="mt-4 text-sm text-ink-muted">Loading...</p>
+        <p className="mt-8 text-sm text-ink-muted">
+          Loading orders...
+        </p>
       ) : (
         <>
-          <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-            <StatCard label="Total orders" value={String(stats.count)} />
-            <StatCard label="Paid" value={String(stats.paid)} hint="Awaiting fulfillment" />
-            <StatCard label="Processing" value={String(stats.processing)} />
-            <StatCard label="Delivered" value={String(stats.delivered)} />
-            <StatCard label="Revenue" value={`$${stats.revenue.toLocaleString()}`} />
+          <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <StatCard
+              label="Total Orders"
+              value={String(stats.total)}
+            />
+
+            <StatCard
+              label="Pending"
+              value={String(stats.pending)}
+            />
+
+            <StatCard
+              label="Processing"
+              value={String(stats.processing)}
+            />
+
+            <StatCard
+              label="Delivered"
+              value={String(stats.delivered)}
+            />
           </div>
 
-          <div className="mt-8 flex gap-2">
+          {error && (
+            <div className="mt-6 rounded-control border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+              {error}
+            </div>
+          )}
+
+          <div className="mt-8 flex flex-wrap gap-2">
             {FILTERS.map(({ value, label }) => (
               <button
                 key={value}
+                type="button"
                 onClick={() => setFilter(value)}
                 className={
                   filter === value
                     ? "rounded-control bg-accent-muted px-3 py-1.5 text-sm text-accent"
-                    : "rounded-control px-3 py-1.5 text-sm text-ink-muted hover:bg-base-raised hover:text-ink"
+                    : "rounded-control px-3 py-1.5 text-sm text-ink-muted transition hover:bg-base-raised hover:text-ink"
                 }
               >
                 {label}
@@ -125,36 +192,104 @@ export default function OrderManagementPage() {
           </div>
 
           <div className="mt-4">
-            {visibleOrders.length === 0 ? (
-              <p className="text-sm text-ink-muted">No {filter === "all" ? "" : filter} orders yet.</p>
+            {visible.length === 0 ? (
+              <div className="rounded-card border border-border-subtle bg-base-raised px-6 py-12 text-center">
+                <p className="text-sm text-ink-muted">
+                  No orders found.
+                </p>
+              </div>
             ) : (
               <DataTable
-                rows={visibleOrders}
-                rowKey={(o) => String(o.id)}
+                rows={visible}
+                rowKey={(order) => String(order.id)}
                 columns={[
-                  { header: "Order", render: (o) => `#${o.id}` },
-                  { header: "Date", render: (o) => o.date },
-                  { header: "Items", render: (o) => <span className="text-ink-muted">{o.items}</span> },
-                  { header: "Total", render: (o) => `$${o.total}` },
+                  {
+                    header: "Order",
+                    render: (order) => (
+                      <span className="font-medium text-ink">
+                        #{order.id}
+                      </span>
+                    ),
+                  },
+
+                  {
+                    header: "Customer",
+                    render: (order) => (
+                      <div>
+                        <div className="text-ink">
+                          {order.customerName || "—"}
+                        </div>
+
+                        <div className="text-xs text-ink-faint">
+                          {order.customerEmail || "—"}
+                        </div>
+                      </div>
+                    ),
+                  },
+
+                  {
+                    header: "Items",
+                    render: (order) => (
+                      <span className="text-ink-muted">
+                        {order.packageName
+                          ? `${order.packageName} membership`
+                          : order.items}
+                      </span>
+                    ),
+                  },
+
+                  {
+                    header: "Amount",
+                    render: (order) => (
+                      <span className="font-medium text-ink">
+                        ${order.total}
+                      </span>
+                    ),
+                  },
+
                   {
                     header: "Status",
-                    render: (o) => <Badge tone={STATUS_TONE[o.status]}>{o.status}</Badge>,
+                    render: (order) => (
+                      <Badge tone={STATUS_TONE[order.status]}>
+                        {STATUS_LABEL[order.status]}
+                      </Badge>
+                    ),
                   },
+
                   {
-                    header: "",
-                    render: (o) => {
-                      const next = NEXT_STATUS[o.status];
-                      if (!next) return null;
-                      return (
+                    header: "Date",
+                    render: (order) => (
+                      <span className="text-ink-muted">
+                        {order.date}
+                      </span>
+                    ),
+                  },
+
+                  {
+                    header: "Action",
+                    render: (order) =>
+                      order.status === "processing" ? (
                         <button
-                          onClick={() => handleAdvance(o)}
-                          disabled={updatingId === o.id}
-                          className="text-sm text-accent hover:underline disabled:opacity-50"
+                          type="button"
+                          disabled={updatingId === order.id}
+                          onClick={() =>
+                            markAsDelivered(order)
+                          }
+                          className="rounded-control bg-accent px-3 py-1.5 text-sm font-medium text-black transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          {updatingId === o.id ? "Updating..." : `Mark as ${next}`}
+                          {updatingId === order.id
+                            ? "Updating..."
+                            : "Mark as Delivered"}
                         </button>
-                      );
-                    },
+                      ) : order.status === "delivered" ? (
+                        <span className="text-xs text-ink-faint">
+                          Delivered
+                        </span>
+                      ) : (
+                        <span className="text-xs text-ink-faint">
+                          —
+                        </span>
+                      ),
                   },
                 ]}
               />

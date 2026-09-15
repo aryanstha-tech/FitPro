@@ -1,5 +1,53 @@
 from django.contrib import admin
+
 from .models import Order, OrderItem
 
-admin.site.register(Order)
-admin.site.register(OrderItem)
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "order_type",
+        "items_summary",
+        "total",
+        "status",
+        "created_at",
+    )
+
+    list_filter = (
+        "status",
+        "created_at",
+    )
+
+    search_fields = (
+        "user__email",
+        "user__name",
+        "payment_reference",
+    )
+
+    readonly_fields = (
+        "created_at",
+        "payment_reference",
+        "items_summary",
+    )
+
+    @admin.display(description="Type")
+    def order_type(self, obj):
+        return "Membership" if obj.package_id else "Product"
+
+
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "order",
+        "product",
+        "quantity",
+        "unit_price",
+    )
+
+    search_fields = (
+        "order__id",
+        "product__name",
+    )

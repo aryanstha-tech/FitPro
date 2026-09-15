@@ -13,7 +13,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 import requests
-
+from enum import Enum
 
 @dataclass
 class PaymentResult:
@@ -27,24 +27,30 @@ class PaymentResult:
     redirect_url: str | None = None
 
 
+
+class PaymentVerificationStatus(str, Enum):
+    COMPLETED = "completed"
+    PENDING = "pending"
+    FAILED = "failed"
+
 class PaymentProvider(ABC):
     @abstractmethod
-    def create_intent(self, amount, currency: str, idempotency_key: str | None, **kwargs) -> PaymentResult:
+    def create_intent(
+        self,
+        amount,
+        currency: str,
+        idempotency_key: str | None,
+        **kwargs,
+    ) -> PaymentResult:
         ...
 
-    def verify(self, reference: str) -> bool:
-        """
-        Confirms a previously-created payment actually completed.
-        Only meaningful for redirect-based gateways — MockPaymentProvider
-        already knows success at create_intent() time, so it doesn't
-        need this. KhaltiProvider overrides it for real.
-        """
+    def verify(self, reference: str) -> PaymentVerificationStatus:
         raise NotImplementedError
-
-
 class MockPaymentProvider(PaymentProvider):
     """Always succeeds — lets checkout/orders be built and tested before
     the real gateway exists."""
+
+    name = "mock"
 
     def create_intent(self, amount, currency: str, idempotency_key=None, **kwargs) -> PaymentResult:
         return PaymentResult(
@@ -65,6 +71,8 @@ class KhaltiProvider(PaymentProvider):
     Docs: https://docs.khalti.com/khalti-epayment/
     Sandbox signup (free): https://test-admin.khalti.com/#/join/merchant
     """
+
+    name = "khalti"
 
     def __init__(self):
         from django.conf import settings
@@ -113,20 +121,26 @@ class KhaltiProvider(PaymentProvider):
             redirect_url=data["payment_url"],
         )
 
-    def verify(self, reference: str) -> bool:
+    def verify(self, reference: str) -> PaymentVerificationStatus:
         response = requests.post(
             f"{self.base_url}/epayment/lookup/",
             json={"pidx": reference},
             headers=self._headers(),
             timeout=10,
         )
-        if response.status_code != 200:
-            return False
-        # Per Khalti's own docs: ONLY "Completed" counts as paid. Pending,
-        # Expired, Refunded, and User canceled must all be treated as
-        # not-paid, even though some of those return HTTP 200.
-        return response.json().get("status") == "Completed"
 
+        if response.status_code != 200:
+            return PaymentVerificationStatus.FAILED
+
+        khalti_status = response.json().get("status")
+
+        if khalti_status == "Completed":
+            return PaymentVerificationStatus.COMPLETED
+
+        if khalti_status == "Pending":
+            return PaymentVerificationStatus.PENDING
+
+        return PaymentVerificationStatus.FAILED
 
 class RealPaymentProvider(PaymentProvider):
     """Placeholder for Developer 1's real gateway integration (e.g. Stripe).

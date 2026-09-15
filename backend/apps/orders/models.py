@@ -7,13 +7,13 @@ class Order(models.Model):
 
     class Status(models.TextChoices):
         PENDING_PAYMENT = "pending_payment", "Pending payment"
-        PAID = "paid", "Paid"
-        PROCESSING = "processing", "Processing"
+        PROCESSING = "processing", "Processing"  # physical order, paid, being fulfilled
+        COMPLETED = "completed", "Completed"  # membership order, paid, nothing left to fulfill
         DELIVERED = "delivered", "Delivered"
         CANCELLED = "cancelled", "Cancelled"
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="orders")
-    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PAID)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.PENDING_PAYMENT)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     # Prevents duplicate order creation on client retry (e.g. double-click,

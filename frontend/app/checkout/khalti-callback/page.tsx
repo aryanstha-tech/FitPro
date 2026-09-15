@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Container } from "@/components/layout/Container";
@@ -15,8 +15,18 @@ function KhaltiCallbackContent() {
     const { clear } = useCart();
     const [order, setOrder] = useState<Order | null>(null);
     const [error, setError] = useState<string | null>(null);
+    // React (dev mode, Strict Mode) intentionally runs effects twice —
+    // without this guard, verifyPayment could fire twice for the same
+    // order. If Khalti's own transaction hasn't fully settled between
+    // those two calls, the first could see "not yet Completed" (treated
+    // as a failure) while the second never re-checks (the order is no
+    // longer PENDING_PAYMENT). One call, ever, per page load.
+    const hasVerified = useRef(false);
 
     useEffect(() => {
+        if (hasVerified.current) return;
+        hasVerified.current = true;
+
         // purchase_order_id is what we set to str(order.id) when calling
         // Khalti's /epayment/initiate/ — it comes back unchanged in the
         // redirect. We deliberately ignore Khalti's own `status` query param
@@ -31,7 +41,11 @@ function KhaltiCallbackContent() {
             .verifyPayment(Number(orderId))
             .then((result) => {
                 setOrder(result);
-                if (result.status === "paid") clear(); // only now do we know it was really paid
+                // "Paid" is a derived concept now, not a stored status — anything
+                // other than pending_payment/cancelled means the payment went
+                // through and the order was already finalized to processing or
+                // completed by the backend.
+                if (result.status !== "pending_payment" && result.status !== "cancelled") clear();
             })
             .catch((err) => setError(err instanceof ApiError ? err.message : "Couldn't verify payment."));
     }, [params]);
@@ -52,7 +66,9 @@ function KhaltiCallbackContent() {
         return <p className="text-sm text-ink-muted">Confirming your payment...</p>;
     }
 
-    if (order.status === "paid") {
+    const isPaid = order.status !== "pending_payment" && order.status !== "cancelled";
+
+    if (isPaid) {
         return order.packageName ? (
             <>
                 <h1 className="text-display-md text-ink">Payment successful</h1>
@@ -64,7 +80,9 @@ function KhaltiCallbackContent() {
         ) : (
             <>
                 <h1 className="text-display-md text-ink">Payment successful</h1>
-                <p className="mt-2 text-sm text-ink-muted">Order #{order.id} is confirmed.</p>
+                <p className="mt-2 text-sm text-ink-muted">
+                    Order #{order.id} is confirmed and being prepared for delivery.
+                </p>
                 <Link href="/dashboard/orders" className="mt-6 inline-block text-sm text-accent hover:underline">
                     View your orders
                 </Link>

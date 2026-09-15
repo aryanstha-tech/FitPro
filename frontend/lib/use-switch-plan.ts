@@ -2,17 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { membershipService } from "@/services/membership.service";
+import { orderService } from "@/services/order.service";
 import { ApiError } from "@/lib/api-client";
 
-/**
- * Shared by PackageGrid (public /membership page) and
- * dashboard/membership/page.tsx (the "Switch plan" section) — both call
- * membershipService.switchPlan() and need the same 401-redirects-to-login
- * behavior. `onSuccess` lets each caller decide what happens next: the
- * public page redirects to the dashboard, the dashboard page just
- * re-fetches its own membership in place.
- */
 export function useSwitchPlan(onSuccess?: () => void) {
   const [switchingId, setSwitchingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -22,7 +14,11 @@ export function useSwitchPlan(onSuccess?: () => void) {
     setError(null);
     setSwitchingId(String(packageId));
     try {
-      await membershipService.switchPlan(Number(packageId));
+      const order = await orderService.create({ packageId: Number(packageId) });
+      if (order.paymentUrl) {
+        window.location.href = order.paymentUrl;
+        return;
+      }
       onSuccess?.();
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {

@@ -15,14 +15,16 @@ export const membershipService = {
   myMembership(): Promise<Membership> {
     return apiFetch<Membership>("/memberships/me/");
   },
-
-  switchPlan(packageId: number): Promise<Membership> {
+  // Admin-only now (backend: IsAdmin) — a manual/comp membership grant for
+  // a specific member, NOT the member purchase flow. Real member
+  // purchases go through orderService.create({ packageId }) instead,
+  // which is payment-gated.
+  adminAssignMembership(userId: number, packageId: number): Promise<Membership> {
     return apiFetch<Membership>("/memberships/switch/", {
       method: "POST",
-      body: { packageId },
+      body: { userId, packageId },
     });
   },
-
   renew(): Promise<Membership> {
     return apiFetch<Membership>("/memberships/renew/", { method: "POST" });
   },
