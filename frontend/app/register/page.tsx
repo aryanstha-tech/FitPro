@@ -169,7 +169,7 @@ function TextField({
         htmlFor={id}
         style={{
           fontSize: 11,
-          color: "#D0D0D0",
+          color: "#d0d0d0",
           fontWeight: 500,
           letterSpacing: "0.02em",
           lineHeight: 1.2,

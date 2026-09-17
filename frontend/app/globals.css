@@ -199,6 +199,23 @@
 }
 
 
+/* Register form placeholder visibility */
+
+.rp-card input::placeholder {
+  color: #73786d;
+  opacity: 1;
+}
+
+.rp-card input::-webkit-input-placeholder {
+  color: #73786d;
+  opacity: 1;
+}
+
+.rp-card input::-moz-placeholder {
+  color: #73786d;
+  opacity: 1;
+}
+
 /* Password eye */
 
 .rp-eye-btn {

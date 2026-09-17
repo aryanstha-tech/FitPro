@@ -167,7 +167,7 @@ export default function ContactPage() {
                       href="tel:+0112003655"
                       className="text-sm font-medium text-white hover:text-accent transition-colors"
                     >
-                      +01 120036
+                      +977 9819300001
                     </a>
                   </div>
                 </div>

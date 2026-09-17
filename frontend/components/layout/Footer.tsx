@@ -316,7 +316,7 @@ export function Footer() {
                 >
                   hello@fitpro.com
                 </a>
-                <span>Kathmandu, Nepal</span>
+                <span>Urlabari, Morang</span>
                 <span>Sun–Fri - 4AM–8PM</span>
               </div>
             </div>
