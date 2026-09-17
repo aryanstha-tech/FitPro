@@ -103,7 +103,7 @@ export default function PackageManagementPage() {
             Featured / most popular
           </label>
           {formError && <span className="text-sm text-red-400">{formError}</span>}
-          <Button type="submit" disabled={submitting} className="mt-2">
+          <Button type="submit" disabled={submitting} className="mt-2 text-white bg-accent">
             {submitting ? "Creating..." : "Create package"}
           </Button>
         </form>
