@@ -64,9 +64,9 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   const isFormData = body instanceof FormData;
 
-  const requestHeaders: HeadersInit = {
+  const requestHeaders: Record<string, string> = {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...headers,
+    ...(headers as Record<string, string>),
   };
 
   if (!isFormData) {
