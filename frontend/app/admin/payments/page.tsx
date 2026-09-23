@@ -20,7 +20,7 @@ import type { Order } from "@/types/order";
 type PaymentStatus = "awaiting" | "paid" | "failed";
 
 function paymentStatusFor(order: Order): PaymentStatus {
-  if (order.paymentStatus === "pending") return "awaiting";
+  if (!order.paymentStatus || order.paymentStatus === "pending") return "awaiting";
   if (order.paymentStatus === "failed") return "failed";
   return "paid";
 }

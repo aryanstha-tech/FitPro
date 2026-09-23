@@ -83,7 +83,7 @@ try {
         ) : (
           <DataTable
             rows={products ?? []}
-            rowKey={(p) => p.id}
+            rowKey={(p) => String(p.id)}
             columns={[
               { header: "Name", render: (p) => p.name },
               { header: "Category", render: (p) => <span className="text-ink-muted">{p.category}</span> },

@@ -64,15 +64,14 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
 
   const isFormData = body instanceof FormData;
 
-  const requestHeaders: HeadersInit = {
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...headers,
-  };
+  const requestHeaders: Record<string, string> = {
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  ...headers,
+};
 
-  if (!isFormData) {
-    requestHeaders["Content-Type"] = "application/json";
-  }
-
+if (!isFormData) {
+  requestHeaders["Content-Type"] = "application/json";
+}
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
     headers: requestHeaders,

@@ -55,8 +55,8 @@ class User(AbstractUser):
         blank=False,
     )
 
-    address = models.CharField(max_length=255, blank=False,)
-    gender = models.CharField(max_length=10, choices=Gender.choices, blank=False,)
+    address = models.CharField(max_length=255, blank=False)
+    gender = models.CharField(max_length=10, choices=Gender.choices, blank=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["name"]

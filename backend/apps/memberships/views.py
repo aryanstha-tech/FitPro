@@ -3,8 +3,8 @@ from datetime import date, timedelta
 from rest_framework import viewsets, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from apps.accounts.permissions import IsAdmin
+from apps.accounts.models import User
+from apps.accounts.permissions import IsAdmin   
 from .models import Package, Membership
 from .serializers import PackageSerializer, MembershipSerializer
 from .services import activate_membership
@@ -69,8 +69,6 @@ class SwitchMembershipView(APIView):
     permission_classes = [IsAdmin]
 
     def post(self, request):
-        from apps.accounts.models import User
-
         user_id = request.data.get("userId")
         target_user = User.objects.filter(id=user_id).first()
         if not target_user:

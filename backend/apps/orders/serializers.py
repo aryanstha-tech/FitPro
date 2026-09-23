@@ -17,6 +17,7 @@ class OrderSerializer(serializers.ModelSerializer):
     paymentMethod = serializers.SerializerMethodField()
     paymentStatus = serializers.SerializerMethodField()
     packageName = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = [
@@ -39,8 +40,8 @@ class OrderSerializer(serializers.ModelSerializer):
         return payment.method if payment else None
 
     def get_paymentStatus(self, obj):
-     payment = getattr(obj, "payment", None)
-     return payment.status if payment else None
+        payment = getattr(obj, "payment", None)
+        return payment.status if payment else None
 
     def get_packageName(self, obj):
         return obj.package.name if obj.package_id else None

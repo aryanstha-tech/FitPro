@@ -7,10 +7,10 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { membershipService } from "@/services/membership.service";
 import { ApiError } from "@/lib/api-client";
-import type { Package as MockPackage } from "@/lib/mock-data";
+import type { Package as DisplayPackage } from "@/lib/mock-data";
 
 export default function PackageManagementPage() {
-  const [packages, setPackages] = useState<MockPackage[] | null>(null);
+  const [packages, setPackages] = useState<DisplayPackage[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showAdd, setShowAdd] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -34,7 +34,8 @@ export default function PackageManagementPage() {
       .catch((err) => setError(err instanceof ApiError ? err.message : "Couldn't load packages."));
   }
 
-  useEffect(loadPackages, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadPackages(); }, []);
 
   async function handleAdd(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -103,7 +104,7 @@ export default function PackageManagementPage() {
             Featured / most popular
           </label>
           {formError && <span className="text-sm text-red-400">{formError}</span>}
-          <Button type="submit" disabled={submitting} className="mt-2 text-white bg-accent">
+          <Button type="submit" disabled={submitting} className="mt-2">
             {submitting ? "Creating..." : "Create package"}
           </Button>
         </form>
