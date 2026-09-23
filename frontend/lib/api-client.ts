@@ -29,9 +29,10 @@ function getAccessToken(): string | null {
   return window.localStorage.getItem("fitpro_access_token");
 }
 
-interface RequestOptions extends Omit<RequestInit, "body"> {
+interface RequestOptions extends Omit<RequestInit, "body" | "headers"> {
   body?: unknown;
   auth?: boolean; // attach the bearer token, default true
+  headers?: Record<string, string>;
 }
 
 function normalizeMediaUrls<T>(data: T): T {
@@ -65,13 +66,13 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   const isFormData = body instanceof FormData;
 
   const requestHeaders: Record<string, string> = {
-  ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  ...headers,
-};
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...headers,
+  };
 
-if (!isFormData) {
-  requestHeaders["Content-Type"] = "application/json";
-}
+  if (!isFormData) {
+    requestHeaders["Content-Type"] = "application/json";
+  }
   const response = await fetch(`${API_URL}${path}`, {
     ...rest,
     headers: requestHeaders,
