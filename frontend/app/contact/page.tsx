@@ -164,10 +164,10 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <a
-                      href="tel:+0112003655"
+                      href="tel:+0107150"
                       className="text-sm font-medium text-white hover:text-accent transition-colors"
                     >
-                      +01 120036
+                      +01 07150
                     </a>
                   </div>
                 </div>
