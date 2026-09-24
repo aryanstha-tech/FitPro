@@ -27,8 +27,8 @@ export default function AboutPage() {
             <h1 className="text-display-md md:text-display-lg text-ink">Built by lifters, for lifters</h1>
             <p className="mt-5 max-w-md text-ink-muted">
               FitPro started as a single warehouse floor in 2026. Today it's a
-              community of members who show up because the space, the
-              equipment and the coaching are worth it — not because of a
+              community of members who show up because the space,
+              the equipment and the coaching are worth it — not because of a
               contract.
             </p>
           </div>
