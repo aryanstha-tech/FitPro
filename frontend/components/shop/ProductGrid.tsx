@@ -42,7 +42,7 @@ export function ProductGrid({ products }: ProductGridProps) {
               onClick={() => setSelectedCategory(category)}
               className={`rounded-full border px-4 py-2 text-sm transition-colors ${
                 active
-                  ? "border-accent bg-accent text-white"
+                  ? "border-accent bg-accent text-black"
                   : "border-base-border bg-base-surface text-ink-muted hover:border-accent hover:text-ink"
               }`}
             >
